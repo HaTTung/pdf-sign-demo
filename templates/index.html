@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống Ký và Xác thực PDF</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; }
+        .box { border: 1px solid #ddd; padding: 20px; margin-top: 20px; border-radius: 8px; background-color: #fafafa; }
+        .box h2 { margin-top: 0; color: #0056b3; }
+        input[type="file"] { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; }
+        button { background-color: #28a745; color: white; border: none; padding: 12px 20px; cursor: pointer; border-radius: 5px; font-size: 16px; width: 100%; }
+        button:hover { background-color: #218838; }
+        .alert { padding: 15px; margin-top: 20px; border-radius: 5px; font-weight: bold; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .danger { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        table, th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+        th { background-color: #e9ecef; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Hệ Thống Chữ Ký Số PDF</h1>
+
+    {% if verify_result %}
+        <div class="alert {% if verify_result.status %}success{% else %}danger{% endif %}">
+            {% if verify_result.message %}
+                {{ verify_result.message }}
+            {% else %}
+                Kết quả kiểm tra chi tiết:
+                <table>
+                    <tr>
+                        <th>Người ký</th>
+                        <th>Tính toàn vẹn</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                    {% for item in verify_result.ket_qua %}
+                    <tr>
+                        <td>{{ item.nguoi_ky }}</td>
+                        <td>{% if item.toan_ven %}✅ File nguyên vẹn{% else %}❌ Bị sửa đổi{% endif %}</td>
+                        <td style="color: {% if item.toan_ven %}green{% else %}red{% endif %}">{{ item.thong_bao }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <div class="box">
+        <h2>1. Ký Số Lên Tài Liệu</h2>
+        <p><i>Hệ thống sẽ tự động sử dụng chứng thư (test_cert.p12) mặc định của tổ chức.</i></p>
+        <form action="/sign" method="post" enctype="multipart/form-data">
+            <label>Chọn file PDF cần ký:</label>
+            <input type="file" name="pdf" accept=".pdf" required>
+            <button type="submit">Thực Hiện Ký Số & Tải Về</button>
+        </form>
+    </div>
+
+    <div class="box">
+        <h2>2. Xác Thực Tài Liệu</h2>
+        <form action="/verify" method="post" enctype="multipart/form-data">
+            <label>Chọn file PDF ĐÃ KÝ để kiểm tra:</label>
+            <input type="file" name="pdf" accept=".pdf" required>
+            <button type="submit" style="background-color: #007bff;">Kiểm Tra Chữ Ký</button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>
